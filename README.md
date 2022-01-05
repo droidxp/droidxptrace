@@ -22,7 +22,7 @@ Besides, you should provide the names of the log files in the `apps.csv` file in
 
 This program will output a JSON file containing the following information:
 
-- App identifier:
+- App `identifier`:
     - `benign`: The name of the log file of the benign version of the app
     - `malign`: The name of the log file of the malign version of the app
     - `benignGraphs`: The benign's sub-callgraphs filtered that containing the all traces that access a sensitive methods
@@ -32,3 +32,10 @@ This program will output a JSON file containing the following information:
     - `hasDifferentTraces`: information about malign and benign has different traces
 
 The file [output.example.json](./output.example.json) contains an example of output.
+
+## Generating apps.csv file
+We created the script `generate-apps-csv.py` to help to generate the `apps.csv`. Just add the files inside `input/`folder and execute the following command:
+
+```
+python3 generate-apps-csv.py
+```
