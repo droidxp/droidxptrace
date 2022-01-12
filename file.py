@@ -22,7 +22,7 @@ def read_sensitive_methods(file_path):
 
 def read_logcat(file_path):
     call_graph = Graph()
-    with open(file_path) as f:
+    with open(file_path, encoding="ISO-8859-1") as f:
         lines = f.readlines()
         for line in lines:
             if " -> " in line:
