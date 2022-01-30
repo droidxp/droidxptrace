@@ -2,13 +2,16 @@ from audioop import reverse
 import json
 import os
 from comparison import compare_accessed_sensitive_methods
-from constants import FIELD_APPS, FIELD_BENIGN_FILE, FIELD_MALIGN_FILE, FIELD_METHODS_ONLY_BY_MALIGN, FIELD_RANKING
+from constants import FIELD_APPS, FIELD_BENIGN_FILE, FIELD_MALIGN_FILE, \
+    FIELD_METHODS_ONLY_BY_MALIGN, FIELD_RANKING, FIELD_BENIGN_GRAPHS, \
+        FIELD_MALIGN_GRAPHS, FIELD_DISTANCES_BENIGN, FIELD_DISTANCES_MALIGN, \
+            FIELD_DISTANCES_ONLY_MALIGN, BENIGN_METHODS, MALIGN_METHODS, \
+                ONLY_MALIGN_METHODS
 
 from file import get_apps, read_logcat, read_sensitive_methods
 
 sensitive_methods_file = "catsources.txt.final"
 apps_file = "apps.csv"
-
 
 def main():
     apps = get_apps(apps_file)
@@ -30,7 +33,50 @@ def main():
         result[FIELD_APPS][app_name][FIELD_MALIGN_FILE] = malign_filename
     # Ranking of sensitive methods
     result[FIELD_RANKING] = get_ranking_sensitive_methods(result[FIELD_APPS])
+    # Relation between min distance to sensitive methods and apps
+    result[FIELD_DISTANCES_BENIGN] = get_distances(result, BENIGN_METHODS)
+    result[FIELD_DISTANCES_MALIGN] = get_distances(result, MALIGN_METHODS)
+    result[FIELD_DISTANCES_ONLY_MALIGN] = get_distances(result, ONLY_MALIGN_METHODS)
     print(json.dumps(result))
+
+
+def get_distances(result, base=BENIGN_METHODS):
+    distances = {}
+    for app_name in result[FIELD_APPS]:
+        if base is BENIGN_METHODS:
+            graph = result[FIELD_APPS][app_name][FIELD_BENIGN_GRAPHS]
+            methods = graph.keys()
+        elif base is MALIGN_METHODS:
+            graph = result[FIELD_APPS][app_name][FIELD_MALIGN_GRAPHS]
+            methods = graph.keys()
+        elif base is ONLY_MALIGN_METHODS:
+            graph = result[FIELD_APPS][app_name][FIELD_MALIGN_GRAPHS]
+            methods = result[FIELD_APPS][app_name][FIELD_METHODS_ONLY_BY_MALIGN]
+        distances[app_name] = []
+        for element in result[FIELD_RANKING]:
+            if element["method"] in methods:
+                distance = get_minimum_distance_to_entrypoint(graph, element["method"])
+                distances[app_name].append(distance)
+            else:
+                distances[app_name].append(None)
+
+    return distances
+
+
+def get_minimum_distance_to_entrypoint(graphs, sensitive_method):
+    graph = graphs[sensitive_method]
+    return get_minimum_distance_to_entrypoint_helper(graph, sensitive_method, 0)
+
+def get_minimum_distance_to_entrypoint_helper(graph, method, distance):
+    if method not in graph:
+        return distance
+
+    min_distance = float('inf')
+    for edge in graph[method]:
+        distance = get_minimum_distance_to_entrypoint_helper(graph, edge, distance + 1)
+        min_distance = min(min_distance, distance)
+    
+    return min_distance
 
 
 def get_paths_to_sensitive_methods(logcat_path):

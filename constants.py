@@ -7,3 +7,10 @@ FIELD_METHODS = 'benignGraphContainsMalignGraph'
 FIELD_HAS_DIFFERENT_TRACES = 'hasDifferentTraces'
 FIELD_RANKING = 'ranking'
 FIELD_APPS = 'apps'
+FIELD_DISTANCES_BENIGN = 'distancesBenign'
+FIELD_DISTANCES_MALIGN = 'distancesMalign'
+FIELD_DISTANCES_ONLY_MALIGN = 'distancesOnlyMalign'
+
+BENIGN_METHODS=1
+MALIGN_METHODS=2
+ONLY_MALIGN_METHODS=3
