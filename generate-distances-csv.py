@@ -1,4 +1,3 @@
-from asyncore import file_wrapper
 import csv
 import sys
 import os
@@ -26,8 +25,11 @@ def main(file_path):
             for app_name in result_json[FIELD_DISTANCES_ONLY_MALIGN]:
                 row = {'apps': app_name}
                 for idx, method_name in enumerate(methods):
-                    row[method_name] = \
-                        result_json[FIELD_DISTANCES_ONLY_MALIGN][app_name][idx]
+                    distance = result_json[FIELD_DISTANCES_ONLY_MALIGN][app_name][idx]
+                    if distance is None:
+                        distance = 0
+                    row[method_name] = distance
+
                 writer.writerow(row)
 
 

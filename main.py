@@ -63,7 +63,7 @@ def get_distances(result, base=BENIGN_METHODS):
                     graph, sensitive_method)
                 distances[app_name].append(distance)
             else:
-                distances[app_name].append(None)
+                distances[app_name].append(0)
     return distances
 
 
